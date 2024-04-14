@@ -1,17 +1,16 @@
 {
-  "manifest_version": 2,
-  "name": "Seeking Alpha Paywall Remover",
-  "version": "1.0",
-  "description": "Removes the paywall from articles on the seekingalpha.com website",
-  "icons": {
-    "48": "icons/48x48.png",
-    "96": "icons/96x96.png"
-  },
-  "content_scripts": [
-    {
-      "matches": ["*://*.seekingalpha.com/article/*"],
-      "js": ["paywall-remover.js"]
-    }
-  ]
+    "manifest_version": 2,
+    "name": "Seeking Alpha Paywall Remover",
+    "version": "1.0",
+    "description": "Removes the paywall from articles on the seekingalpha.com website",
+    "icons": {
+        "48": "icons/48x48.png",
+        "96": "icons/96x96.png"
+    },
+    "content_scripts": [
+        {
+            "matches": ["*://*.seekingalpha.com/article/*"],
+            "js": ["paywall-remover.js"]
+        }
+    ]
 }
-
