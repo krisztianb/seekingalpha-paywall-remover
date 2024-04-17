@@ -1,15 +1,15 @@
 {
     "manifest_version": 2,
     "name": "Seeking Alpha Paywall Remover",
-    "version": "1.0",
-    "description": "Removes the paywall from articles on the seekingalpha.com website",
+    "version": "1.1",
+    "description": "Removes the paywall from news and article pages on the seekingalpha.com website",
     "icons": {
         "48": "icons/48x48.png",
         "96": "icons/96x96.png"
     },
     "content_scripts": [
         {
-            "matches": ["*://*.seekingalpha.com/article/*"],
+            "matches": ["*://*.seekingalpha.com/article/*", "*://*.seekingalpha.com/news/*"],
             "js": ["paywall-remover.js"]
         }
     ]
