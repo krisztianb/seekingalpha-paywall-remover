@@ -1,4 +1,4 @@
-const payWallSelector = 'div[data-test-id="after-layout-content-slot"]';
+const payWallSelector = 'div:has(> div[role="dialog"])';
 const articleContentSelector = 'div[data-test-id="article-content"]';
 
 // Store the original non-pay-walled article content
@@ -26,7 +26,7 @@ function hidePayWall() {
 
 function removeBodyScrollLock() {
     const body = document.body;
-    body.classList.remove("scrollLocked");
+    body.classList.remove("scrollLock");
     body.removeAttribute("style"); // there is an additional "overflow:hidden" to remove
 }
 
@@ -45,4 +45,3 @@ function removeFadeOutStyle() {
         div.remove();
     }
 }
-
