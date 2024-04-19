@@ -1,8 +1,8 @@
 const payWallSelector = 'div:has(> div[role="dialog"])';
-const articleContentSelector = 'div[data-test-id="article-content"]';
+const contentSelector = "main article section";
 
-// Store the original non-pay-walled article content
-const articleContent = document.querySelector(articleContentSelector).innerHTML;
+// Store the original non-pay-walled content
+const content = document.querySelector(contentSelector).innerHTML;
 
 // Code executed once the paywall is shown
 new window.MutationObserver(function (mutations) {
@@ -10,8 +10,17 @@ new window.MutationObserver(function (mutations) {
         if (mutation.target.matches(payWallSelector)) {
             removeBodyScrollLock();
             hidePayWall();
-            restoreArticleContent();
-            removeFadeOutStyle();
+            restoreContent();
+            this.disconnect();
+        }
+    }
+}).observe(document, { subtree: true, childList: true });
+
+// Code that restores the content if it gets hidden by some additional script
+new window.MutationObserver(function (mutations) {
+    for (const mutation of mutations) {
+        if (mutation.target.matches(contentSelector)) {
+            restoreContent();
             this.disconnect();
         }
     }
@@ -30,18 +39,6 @@ function removeBodyScrollLock() {
     body.removeAttribute("style"); // there is an additional "overflow:hidden" to remove
 }
 
-function restoreArticleContent() {
-    const article = document.querySelector(articleContentSelector);
-    article.innerHTML = articleContent;
-}
-
-// This removes the DIV which creates a fade out style at the bottom of the article content
-function removeFadeOutStyle() {
-    const div = document.querySelector(".piano-paywall-container");
-    if (div) {
-        if (div.previousSibling) {
-            div.previousSibling.remove();
-        }
-        div.remove();
-    }
+function restoreContent() {
+    document.querySelector(contentSelector).innerHTML = content;
 }
