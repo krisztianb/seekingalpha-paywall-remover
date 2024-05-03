@@ -1,8 +1,9 @@
 const payWallSelector = 'div:has(> div[role="dialog"])';
-const contentSelector = "main article section";
+const contentWrapperSelector = "#content";
+const articleSelector = "main article section";
 
 // Store the original non-pay-walled content
-const content = document.querySelector(contentSelector).innerHTML;
+const content = document.querySelector(articleSelector).innerHTML;
 
 // Code executed once the paywall is shown
 new window.MutationObserver(function (mutations) {
@@ -16,15 +17,15 @@ new window.MutationObserver(function (mutations) {
     }
 }).observe(document, { subtree: true, childList: true });
 
-// Code that restores the content if it gets hidden by some additional script
+// Code that removes the interactivity lock if it gets added by some script
 new window.MutationObserver(function (mutations) {
     for (const mutation of mutations) {
-        if (mutation.target.matches(contentSelector)) {
-            restoreContent();
+        if (mutation.target.matches(contentWrapperSelector)) {
+            removeInteractivityLock();
             this.disconnect();
         }
     }
-}).observe(document, { subtree: true, childList: true });
+}).observe(document, { subtree: true, attributes: true });
 
 function hidePayWall() {
     const payWallOverlay = document.querySelector(payWallSelector);
@@ -39,6 +40,13 @@ function removeBodyScrollLock() {
     body.removeAttribute("style"); // there is an additional "overflow:hidden" to remove
 }
 
+function removeInteractivityLock() {
+    const deactivatedElements = document.querySelectorAll("*[inert]");
+    deactivatedElements.forEach((element) => {
+        element.removeAttribute("inert");
+    });
+}
+
 function restoreContent() {
-    document.querySelector(contentSelector).innerHTML = content;
+    document.querySelector(articleSelector).innerHTML = content;
 }
