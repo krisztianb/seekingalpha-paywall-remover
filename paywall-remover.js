@@ -1,4 +1,5 @@
-const payWallSelector = 'div:has(> div[role="dialog"])';
+const payWallSelector = "main + div > div + div";
+const overlaySelector = "div.bg-black\\/30";
 const contentWrapperSelector = "#content";
 const articleSelector = "main article section";
 
@@ -28,9 +29,14 @@ new window.MutationObserver(function (mutations) {
 }).observe(document, { subtree: true, attributes: true });
 
 function hidePayWall() {
-    const payWallOverlay = document.querySelector(payWallSelector);
-    if (payWallOverlay) {
-        payWallOverlay.setAttribute("style", "display:none");
+    const payWallDialog = document.querySelector(payWallSelector);
+    if (payWallDialog) {
+        payWallDialog.setAttribute("style", "display:none");
+    }
+
+    const overlay = document.querySelector(overlaySelector);
+    if (overlay) {
+        overlay.remove();
     }
 }
 
