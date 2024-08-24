@@ -1,6 +1,17 @@
-const payWallSelector = "main + div > div + div";
-const overlaySelector = "div.bg-black\\/30";
-const contentWrapperSelector = "#content";
+let matchingPayWallSelector = "";
+
+/**
+ * The structure of the HTML (and the pay wall) is not always the same.
+ * So we need to check different possible pay wall locations on the page.
+ * The matching selector is stored in the variable "matchingPayWallSelector".
+ */
+const payWallSelectors = [
+    "main + div > div + div", // user is logged in
+    "main article div.contents + div", // user is not logged in
+];
+
+const overlaySelector = "div.bg-black\\/30"; // this is the element creating the gray semi-transparent overlay effect
+const contentWrapperSelector = ".contents";
 const articleSelector = "main article section";
 
 // Store the original non-pay-walled content
@@ -9,7 +20,13 @@ const content = document.querySelector(articleSelector).innerHTML;
 // Code executed once the paywall is shown
 new window.MutationObserver(function (mutations) {
     for (const mutation of mutations) {
-        if (mutation.target.matches(payWallSelector)) {
+        payWallSelectors.forEach((selector) => {
+            if (mutation.target.matches(selector)) {
+                matchingPayWallSelector = selector;
+            }
+        });
+
+        if (matchingPayWallSelector) {
             removeBodyScrollLock();
             hidePayWall();
             restoreContent();
@@ -29,7 +46,7 @@ new window.MutationObserver(function (mutations) {
 }).observe(document, { subtree: true, attributes: true });
 
 function hidePayWall() {
-    const payWallDialog = document.querySelector(payWallSelector);
+    const payWallDialog = document.querySelector(matchingPayWallSelector);
     if (payWallDialog) {
         payWallDialog.setAttribute("style", "display:none");
     }
