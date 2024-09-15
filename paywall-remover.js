@@ -13,9 +13,12 @@ const payWallSelectors = [
 const overlaySelector = "div.bg-black\\/30"; // this is the element creating the gray semi-transparent overlay effect
 const contentWrapperSelector = ".contents";
 const articleSelector = "main article section";
+const adSelector = "main + div"; // might contain "special offer" ads
 
 // Store the original non-pay-walled content
 const content = document.querySelector(articleSelector).innerHTML;
+
+removeAds();
 
 // Code executed once the paywall is shown
 new window.MutationObserver(function (mutations) {
@@ -72,4 +75,11 @@ function removeInteractivityLock() {
 
 function restoreContent() {
     document.querySelector(articleSelector).innerHTML = content;
+}
+
+function removeAds() {
+    const ad = document.querySelector(adSelector);
+    if (ad) {
+        ad.remove();
+    }
 }

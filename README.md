@@ -12,3 +12,11 @@ The extension only operates on pages similar to the following:
 ### Installation
 
 Currently only available for Firefox: https://addons.mozilla.org/en-US/firefox/addon/seeking-alpha-paywall-remover/
+
+### Troubleshooting
+
+If the extension doesn't seem to work for you please try the following before opening an [issue ticket](https://github.com/krisztianb/seekingalpha-paywall-remover/issues):
+
+* Make sure you have the latest version of the extension installed (you can use the URL `about:addons` in Firefox)
+* Delete all seekingalpha.com cookies in your browser (key combination Ctrl + Alt + Del)
+* Reload the page while holding down the SHIFT button (= reload ignoring cached content)
