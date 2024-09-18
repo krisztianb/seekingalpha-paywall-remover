@@ -1,5 +1,3 @@
-let matchingPayWallSelector = "";
-
 /**
  * The structure of the HTML (and the pay wall) is not always the same.
  * So we need to check different possible pay wall locations on the page.
@@ -12,41 +10,52 @@ const payWallSelectors = [
 
 const overlaySelector = "div.bg-black\\/30"; // this is the element creating the gray semi-transparent overlay effect
 const contentWrapperSelector = ".contents";
-const articleSelector = "main article section";
+const contentSelector = "[data-test-id='content-container']";
 const adSelector = "main + div"; // might contain "special offer" ads
 
-// Store the original non-pay-walled content
-const content = document.querySelector(articleSelector).innerHTML;
+let matchingPayWallSelector = "";
+let content = ""; // Stores the original full non-pay-walled content
 
-removeAds();
-
-// Code executed once the paywall is shown
+// Code executed once the loader has finished loading the full content
 new window.MutationObserver(function (mutations) {
     for (const mutation of mutations) {
-        payWallSelectors.forEach((selector) => {
-            if (mutation.target.matches(selector)) {
-                matchingPayWallSelector = selector;
-            }
-        });
-
-        if (matchingPayWallSelector) {
-            removeBodyScrollLock();
-            hidePayWall();
-            restoreContent();
+        if (mutation.target.matches(contentSelector)) {
+            storeContent();
+            preparePayWallRemover();
             this.disconnect();
         }
     }
 }).observe(document, { subtree: true, childList: true });
 
-// Code that removes the interactivity lock if it gets added by some script
-new window.MutationObserver(function (mutations) {
-    for (const mutation of mutations) {
-        if (mutation.target.matches(contentWrapperSelector)) {
-            removeInteractivityLock();
-            this.disconnect();
+function preparePayWallRemover() {
+    // Code executed once the paywall is shown
+    new window.MutationObserver(function (mutations) {
+        for (const mutation of mutations) {
+            payWallSelectors.forEach((selector) => {
+                if (mutation.target.matches(selector)) {
+                    matchingPayWallSelector = selector;
+                }
+            });
+
+            if (matchingPayWallSelector) {
+                removeBodyScrollLock();
+                hidePayWall();
+                restoreContent();
+                this.disconnect();
+            }
         }
-    }
-}).observe(document, { subtree: true, attributes: true });
+    }).observe(document, { subtree: true, childList: true });
+
+    // Code that removes the interactivity lock if it gets added by some script
+    new window.MutationObserver(function (mutations) {
+        for (const mutation of mutations) {
+            if (mutation.target.matches(contentWrapperSelector)) {
+                removeInteractivityLock();
+                this.disconnect();
+            }
+        }
+    }).observe(document, { subtree: true, attributes: true });
+}
 
 function hidePayWall() {
     const payWallDialog = document.querySelector(matchingPayWallSelector);
@@ -73,13 +82,10 @@ function removeInteractivityLock() {
     });
 }
 
-function restoreContent() {
-    document.querySelector(articleSelector).innerHTML = content;
+function storeContent() {
+    content = document.querySelector(contentSelector).innerHTML;
 }
 
-function removeAds() {
-    const ad = document.querySelector(adSelector);
-    if (ad) {
-        ad.remove();
-    }
+function restoreContent() {
+    document.querySelector(contentSelector).innerHTML = content;
 }
