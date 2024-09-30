@@ -9,53 +9,48 @@ const payWallSelectors = [
 ];
 
 const overlaySelector = "div.bg-black\\/30"; // this is the element creating the gray semi-transparent overlay effect
-const contentWrapperSelector = ".contents";
-const contentSelector = "[data-test-id='content-container']";
-const adSelector = "main + div"; // might contain "special offer" ads
+const articleSelector = "main article section";
 
 let matchingPayWallSelector = "";
 let content = ""; // Stores the original full non-pay-walled content
 
-// Code executed once the loader has finished loading the full content
-new window.MutationObserver(function (mutations) {
-    for (const mutation of mutations) {
-        if (mutation.target.matches(contentSelector)) {
-            storeContent();
-            preparePayWallRemover();
-            this.disconnect();
-        }
+// Code checking if the page has finished loading the full content
+let fullArticleLoadedCheck = setInterval(() => {
+    // Here we assume that the page contains at least one paragraph
+    const hasFullArticleLoaded = document.querySelector("p.paywall-full-content") != null;
+
+    if (hasFullArticleLoaded) {
+        removePayWallFlags();
+        storeContent();
+        preparePayWallRemover();
+        clearInterval(fullArticleLoadedCheck);
     }
-}).observe(document, { subtree: true, childList: true });
+}, 10);
 
+// Code checking if the paywall has been displayed
 function preparePayWallRemover() {
-    // Code executed once the paywall is shown
-    new window.MutationObserver(function (mutations) {
-        for (const mutation of mutations) {
-            payWallSelectors.forEach((selector) => {
-                if (mutation.target.matches(selector)) {
-                    matchingPayWallSelector = selector;
-                }
-            });
+    let payWallLoadedCheck = setInterval(() => {
+        payWallSelectors.forEach((selector) => {
+            const payWall = document.querySelector(selector);
 
-            if (matchingPayWallSelector) {
-                removeBodyScrollLock();
-                hidePayWall();
-                restoreContent();
-                this.disconnect();
+            if (payWall && payWall.innerHTML != "") {
+                matchingPayWallSelector = selector;
             }
-        }
-    }).observe(document, { subtree: true, childList: true });
+        });
 
-    // Code that removes the interactivity lock if it gets added by some script
-    new window.MutationObserver(function (mutations) {
-        for (const mutation of mutations) {
-            if (mutation.target.matches(contentWrapperSelector)) {
-                removeInteractivityLock();
-                this.disconnect();
-            }
+        if (matchingPayWallSelector) {
+            removeBodyScrollLock();
+            hidePayWall();
+            restoreContent();
+            clearInterval(payWallLoadedCheck);
         }
-    }).observe(document, { subtree: true, attributes: true });
+    }, 10);
 }
+
+// Code that keeps removing interactivity locks from the page
+setInterval(() => {
+    removeInteractivityLock();
+}, 1000);
 
 function hidePayWall() {
     const payWallDialog = document.querySelector(matchingPayWallSelector);
@@ -71,7 +66,7 @@ function hidePayWall() {
 
 function removeBodyScrollLock() {
     const body = document.body;
-    body.classList.remove("scrollLock");
+    body.classList.remove("lockScroll");
     body.removeAttribute("style"); // there is an additional "overflow:hidden" to remove
 }
 
@@ -82,10 +77,16 @@ function removeInteractivityLock() {
     });
 }
 
+function removePayWallFlags() {
+    document.querySelectorAll(".paywall-full-content").forEach((item) => {
+        item.classList.remove("paywall-full-content");
+    });
+}
+
 function storeContent() {
-    content = document.querySelector(contentSelector).innerHTML;
+    content = document.querySelector(articleSelector).innerHTML;
 }
 
 function restoreContent() {
-    document.querySelector(contentSelector).innerHTML = content;
+    document.querySelector(articleSelector).innerHTML = content;
 }
