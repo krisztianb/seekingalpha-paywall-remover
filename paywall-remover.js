@@ -20,7 +20,7 @@ let fullArticleLoadedCheck = setInterval(() => {
     const hasFullArticleLoaded = document.querySelector("p.paywall-full-content") != null;
 
     if (hasFullArticleLoaded) {
-        removePayWallFlags();
+        removePayWallMarkersFromPage();
         storeContent();
         preparePayWallRemover();
         clearInterval(fullArticleLoadedCheck);
@@ -50,7 +50,7 @@ function preparePayWallRemover() {
 // Code that keeps removing interactivity locks from the page
 setInterval(() => {
     removeInteractivityLock();
-}, 1000);
+}, 2500);
 
 function hidePayWall() {
     const payWallDialog = document.querySelector(matchingPayWallSelector);
@@ -66,7 +66,11 @@ function hidePayWall() {
 
 function removeBodyScrollLock() {
     const body = document.body;
-    body.classList.remove("lockScroll");
+
+    ["lockScroll", "scrollLock"].forEach((className) => {
+        body.classList.remove(className);
+    });
+
     body.removeAttribute("style"); // there is an additional "overflow:hidden" to remove
 }
 
@@ -77,9 +81,12 @@ function removeInteractivityLock() {
     });
 }
 
-function removePayWallFlags() {
-    document.querySelectorAll(".paywall-full-content").forEach((item) => {
-        item.classList.remove("paywall-full-content");
+function removePayWallMarkersFromPage() {
+    // This is necessary because otherwise a script on the page will keep removing the marked content once we restore it
+    ["paywall-full-content", "invisible"].forEach((className) => {
+        document.querySelectorAll("." + className).forEach((item) => {
+            item.classList.remove(className);
+        });
     });
 }
 
