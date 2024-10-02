@@ -15,7 +15,7 @@ let matchingPayWallSelector = "";
 let content = ""; // Stores the original full non-pay-walled content
 
 // Code checking if the page has finished loading the full content
-let fullArticleLoadedCheck = setInterval(() => {
+new window.MutationObserver(() => {
     // Here we assume that the page contains at least one paragraph
     const hasFullArticleLoaded = document.querySelector("p.paywall-full-content") != null;
 
@@ -23,12 +23,12 @@ let fullArticleLoadedCheck = setInterval(() => {
         removePayWallMarkersFromPage();
         storeContent();
         preparePayWallRemover();
-        clearInterval(fullArticleLoadedCheck);
+        this.disconnect();
     }
-}, 10);
+}).observe(document, { subtree: true, childList: true });
 
-// Code checking if the paywall has been displayed
 function preparePayWallRemover() {
+    // Code checking if the paywall has been displayed
     let payWallLoadedCheck = setInterval(() => {
         payWallSelectors.forEach((selector) => {
             const payWall = document.querySelector(selector);
@@ -48,9 +48,13 @@ function preparePayWallRemover() {
 }
 
 // Code that keeps removing interactivity locks from the page
-setInterval(() => {
-    removeInteractivityLock();
-}, 2500);
+new window.MutationObserver(function (mutations) {
+    for (const mutation of mutations) {
+        if (mutation.target.matches("*[inert]")) {
+            mutation.target.removeAttribute("inert");
+        }
+    }
+}).observe(document, { subtree: true, attributes: true });
 
 function hidePayWall() {
     const payWallDialog = document.querySelector(matchingPayWallSelector);
@@ -66,19 +70,8 @@ function hidePayWall() {
 
 function removeBodyScrollLock() {
     const body = document.body;
-
-    ["lockScroll", "scrollLock"].forEach((className) => {
-        body.classList.remove(className);
-    });
-
+    body.removeAttribute("class"); // has a class that blocks scrolling
     body.removeAttribute("style"); // there is an additional "overflow:hidden" to remove
-}
-
-function removeInteractivityLock() {
-    const deactivatedElements = document.querySelectorAll("*[inert]");
-    deactivatedElements.forEach((element) => {
-        element.removeAttribute("inert");
-    });
 }
 
 function removePayWallMarkersFromPage() {
