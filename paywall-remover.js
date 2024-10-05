@@ -25,7 +25,7 @@ new window.MutationObserver(() => {
         preparePayWallRemover();
         this.disconnect();
     }
-}).observe(document, { subtree: true, childList: true });
+}).observe(document, { subtree: true, childList: true, attributes: true });
 
 function preparePayWallRemover() {
     // Code checking if the paywall has been displayed
