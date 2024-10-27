@@ -16,8 +16,8 @@ let content = ""; // Stores the original full non-pay-walled content
 
 // Code checking if the page has finished loading the full content
 new window.MutationObserver(() => {
-    // Here we assume that the page contains at least one paragraph
-    const hasFullArticleLoaded = document.querySelector("p.paywall-full-content") != null;
+    // Here we assume that the page contains at least one paragraph or list item
+    const hasFullArticleLoaded = document.querySelector(".paywall-full-content:is(p,li)") != null;
 
     if (hasFullArticleLoaded) {
         removePayWallMarkersFromPage();
