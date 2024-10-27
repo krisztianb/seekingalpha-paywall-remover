@@ -18,5 +18,7 @@ Currently only available for Firefox: https://addons.mozilla.org/en-US/firefox/a
 If the extension doesn't seem to work for you please try the following before opening an [issue ticket](https://github.com/krisztianb/seekingalpha-paywall-remover/issues):
 
 * Make sure you have the latest version of the extension installed (you can use the URL `about:addons` in Firefox)
-* Delete all seekingalpha.com cookies in your browser (key combination Ctrl + Alt + Del)
 * Reload the page while holding down the SHIFT button (= reload ignoring cached content)
+* Try reloading the page after the paywall is visible. Repeat this multiple times. It is a known issue that the
+  extension often fails to detect the loading of the paywall correctly and therefore can't remove it.
+  Until this issue has been fixed please reload the page at least 10 times before reporting a bug. Thanks.
