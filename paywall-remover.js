@@ -20,31 +20,32 @@ new window.MutationObserver(() => {
     const hasFullArticleLoaded = document.querySelector(".paywall-full-content:is(p,li)") != null;
 
     if (hasFullArticleLoaded) {
-        removePayWallMarkersFromPage();
         storeContent();
-        preparePayWallRemover();
+        initPayWallRemover();
         this.disconnect();
     }
 }).observe(document, { subtree: true, childList: true, attributes: true });
 
-function preparePayWallRemover() {
+function initPayWallRemover() {
     // Code checking if the paywall has been displayed
-    let payWallLoadedCheck = setInterval(() => {
-        payWallSelectors.forEach((selector) => {
-            const payWall = document.querySelector(selector);
-
-            if (payWall && payWall.innerHTML != "") {
-                matchingPayWallSelector = selector;
+    new window.MutationObserver(function (mutations) {
+        for (const mutation of mutations) {
+            // If we haven't found the paywall yet, check if it has been added
+            if (!matchingPayWallSelector) {
+                payWallSelectors.forEach((selector) => {
+                    if (mutation.target.matches(selector)) {
+                        matchingPayWallSelector = selector;
+                    }
+                });
             }
-        });
 
-        if (matchingPayWallSelector) {
-            removeBodyScrollLock();
-            hidePayWall();
-            restoreContent();
-            clearInterval(payWallLoadedCheck);
+            if (matchingPayWallSelector) {
+                hidePayWall();
+                restoreContent();
+                this.disconnect();
+            }
         }
-    }, 10);
+    }).observe(document, { subtree: true, childList: true });
 }
 
 // Code that keeps removing interactivity locks from the page
@@ -52,6 +53,15 @@ new window.MutationObserver(function (mutations) {
     for (const mutation of mutations) {
         if (mutation.target.matches("*[inert]")) {
             mutation.target.removeAttribute("inert");
+        }
+    }
+}).observe(document, { subtree: true, attributes: true });
+
+// Code that keeps removing the scroll lock from the page
+new window.MutationObserver(function (mutations) {
+    for (const mutation of mutations) {
+        if (mutation.target.matches("body")) {
+            removeBodyScrollLock();
         }
     }
 }).observe(document, { subtree: true, attributes: true });
@@ -69,9 +79,8 @@ function hidePayWall() {
 }
 
 function removeBodyScrollLock() {
-    const body = document.body;
-    body.removeAttribute("class"); // has a class that blocks scrolling
-    body.removeAttribute("style"); // there is an additional "overflow:hidden" to remove
+    document.body.removeAttribute("class"); // has a class that blocks scrolling
+    document.body.removeAttribute("style"); // there is an additional "overflow:hidden" to remove
 }
 
 function removePayWallMarkersFromPage() {
@@ -84,6 +93,7 @@ function removePayWallMarkersFromPage() {
 }
 
 function storeContent() {
+    removePayWallMarkersFromPage();
     content = document.querySelector(articleSelector).innerHTML;
 }
 
